@@ -176,7 +176,7 @@ module CarrierWave
     # [permissions (Integer)] permissions to set on the file in its new location.
     # [directory_permissions (Integer)] permissions to set on created directories.
     #
-    def move_to(new_path, permissions=nil, directory_permissions=nil)
+    def move_to(new_path, permissions=nil, directory_permissions=nil, keep_filename=false)
       return if self.empty?
       new_path = File.expand_path(new_path)
 
@@ -187,7 +187,11 @@ module CarrierWave
         File.open(new_path, "wb") { |f| f.write(read) }
       end
       chmod!(new_path, permissions)
-      self.file = new_path
+      if keep_filename
+        self.file = {:tempfile => new_path, :filename => original_filename}
+      else
+        self.file = new_path
+      end
       self
     end
 
